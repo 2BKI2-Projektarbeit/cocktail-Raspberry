@@ -1,6 +1,7 @@
 package com.projektarbeit.redis;
 
 import com.projektarbeit.objects.Cocktail;
+import com.projektarbeit.redis.controllers.AdminAuthController;
 import com.projektarbeit.redis.controllers.CocktailController;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,19 +54,49 @@ public class CommunicationManager {
         System.out.println("[REDIS] Message sent: " + object.toString());
     }
 
+    public static void publishMessage(JSONObject object) {
+        JSONObject sender = new JSONObject();
+        JSONObject to = new JSONObject();
+
+        try {
+            sender.put("uuid", JSONObject.NULL);
+            sender.put("type", "controller");
+
+            to.put("uuid", "broadcast");
+            to.put("type", "app_android");
+
+            object.put("sender", sender);
+            object.put("to", to);
+        } catch (JSONException ignored) {}
+
+        jedisPub.publish("general", object.toString());
+        System.out.println("[REDIS] Message sent: " + object.toString());
+    }
+
     public static void setupSubscriber() {
         Thread t = new Thread(() -> jedisSub.subscribe(new JedisPubSub() {
             @Override
             public void onMessage(String channel, String message) {
                 try {
                     JSONObject object = new JSONObject(message);
-                    System.out.println("[REDIS] Message received: " + object.toString());
 
-                    if(object.getJSONObject("to").getString("type").equalsIgnoreCase("controller")) {
-                        if(object.getString("action").equalsIgnoreCase("make_cocktail_start")) {
-                            UUID cocktailId = UUID.fromString(object.getString("cocktail_id"));
-                            if(CocktailController.ready)
-                                CocktailController.start(cocktailId);
+                    if(object.getJSONObject("to").getString("type").equalsIgnoreCase("controller") || (object.getJSONObject("to").getString("uuid").equalsIgnoreCase("broadcast") && !(object.getJSONObject("sender").getString("type").equalsIgnoreCase("controller")))) {
+                        System.out.println("[REDIS] Message received: " + object.toString());
+
+                        switch (object.getString("action")) {
+                            case "make_cocktail_start":
+                                CocktailController.start(object);
+                                break;
+                            case "admin_auth_start":
+                                AdminAuthController.start(object);
+                                break;
+                            case "admin_auth_cancel":
+                                AdminAuthController.cancelIn();
+                                break;
+                            case "admin_auth_finish":
+                                AdminAuthController.finish();
+                                break;
+
                         }
                     }
                 } catch (JSONException ex) {

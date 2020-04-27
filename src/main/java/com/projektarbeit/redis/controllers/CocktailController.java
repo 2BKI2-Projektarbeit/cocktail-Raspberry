@@ -4,12 +4,11 @@ import com.projektarbeit.Main;
 import com.projektarbeit.mysql.DatabaseManager;
 import com.projektarbeit.objects.Cocktail;
 import com.projektarbeit.objects.Ingredient;
-import javafx.concurrent.Task;
+import com.projektarbeit.redis.CommunicationManager;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.rmi.server.ExportException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import java.util.UUID;
 public class CocktailController {
 
     public static boolean ready = true;
+    public static Thread thread;
 
     public static Cocktail fetchCocktail(UUID cocktailId) {
         Cocktail cocktail;
@@ -43,26 +43,76 @@ public class CocktailController {
         return null;
     }
 
-    public static void start(UUID cocktailId) {
-        Cocktail cocktail = fetchCocktail(cocktailId);
+    public static void start(JSONObject object) {
+        if(ready) {
+            Cocktail cocktail = fetchCocktail(UUID.fromString(object.getString("cocktail_id")));
 
-        new Thread(() -> {
-            ready = false;
+            thread = new Thread(() -> {
+                ready = false;
+                CommunicationManager.activeActions.put("make_cocktail", UUID.fromString(object.getString("action_id")));
 
-            cocktail.getIngredients().forEach((ingredient, ml) -> {
+                confirmStart(UUID.fromString(object.getString("action_id")));
+
                 try {
-                    int milliseconds = MachineController.berechneMillisekunden(ml);
+                    Thread.sleep(2000);
+                } catch (Exception ignored) {}
 
-                    String message = "p:" + ingredient.getPump() + ":" + milliseconds;
+                cocktail.getIngredients().forEach((ingredient, ml) -> {
+                    try {
+                        int milliseconds = MachineController.berechneMillisekunden(ml);
 
-                    Main.device.write(message.getBytes());
-                    Thread.sleep(milliseconds + 1000);
-                } catch (Exception ignored) {
-                    ignored.printStackTrace();
-                }
+                        String message = "p:" + ingredient.getPump() + ":" + milliseconds;
+
+                        Main.device.write(message.getBytes());
+                        Thread.sleep(milliseconds + 1000);
+
+                        DatabaseManager.getConnection().prepareStatement("UPDATE `ingredients` SET `fillLevel` = `fillLevel` -" + ml + " WHERE `ingredientId`='" + ingredient.getIngredientId() + "'").execute();
+                    } catch (Exception ignored) {}
+                });
+
+                finishedCocktail(UUID.fromString(object.getString("action_id")));
+
             });
+            thread.start();
+        }
+    }
 
-            ready = true;
-        }).start();
+    public static void confirmStart(UUID actionId) {
+        JSONObject message = new JSONObject();
+
+        try {
+            message.put("action", "make_cocktail_confirmation");
+            message.put("action_id", actionId.toString());
+        } catch(JSONException ignored) {}
+
+        CommunicationManager.publishMessage(message);
+    }
+
+    public static void finishedCocktail(UUID actionId) {
+        JSONObject message = new JSONObject();
+
+        try {
+            message.put("action", "make_cocktail_finished");
+            message.put("action_id", actionId.toString());
+        } catch (JSONException ignored) {}
+
+        CommunicationManager.publishMessage(message);
+        ready = true;
+        CommunicationManager.activeActions.remove("make_cocktail");
+    }
+
+    public static void cancelledCocktail(UUID actionId) {
+        thread.stop();
+
+        JSONObject message = new JSONObject();
+
+        try {
+            message.put("action", "make_cocktail_cancelled");
+            message.put("action_id", actionId.toString());
+        } catch (JSONException ignored) {}
+
+        CommunicationManager.publishMessage(message);
+        ready = true;
+        CommunicationManager.activeActions.remove("make_cocktail");
     }
 }

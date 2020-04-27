@@ -20,6 +20,10 @@ public class Ingredient {
         this.fillCapacity = fillCapacity;
     }
 
+    public UUID getIngredientId() {
+        return ingredientId;
+    }
+
     public String getName() {
         return name;
     }
