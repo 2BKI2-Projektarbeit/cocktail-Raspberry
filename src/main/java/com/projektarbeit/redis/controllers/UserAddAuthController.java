@@ -8,13 +8,13 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.UUID;
 
-public class AdminAuthController {
+public class UserAddAuthController {
 
     private static Thread thread;
 
     public static void start(JSONObject object) {
         if(CommunicationManager.activeActions.containsKey("admin_auth")) {
-            cancelOut(CommunicationManager.activeActions.get("admin_auth"));
+            AdminAuthController.cancelOut(CommunicationManager.activeActions.get("admin_auth"));
         }
 
         if(CommunicationManager.activeActions.containsKey("maintenance_auth")) {
@@ -26,14 +26,14 @@ public class AdminAuthController {
         }
 
         if(CommunicationManager.activeActions.containsKey("user_add_auth")) {
-            UserAddAuthController.cancelOut(CommunicationManager.activeActions.get("user_add_auth"));
+            cancelOut(CommunicationManager.activeActions.get("user_add_auth"));
         }
 
         if(CommunicationManager.activeActions.containsKey("user_edit_auth")) {
             UserEditAuthController.cancelOut(CommunicationManager.activeActions.get("user_edit_auth"));
         }
 
-        CommunicationManager.activeActions.put("admin_auth", UUID.fromString(object.getString("action_id")));
+        CommunicationManager.activeActions.put("user_add_auth", UUID.fromString(object.getString("action_id")));
 
         try {
             Main.device.write("clr:rfid".getBytes());
@@ -42,7 +42,7 @@ public class AdminAuthController {
         }
 
         thread = new Thread(() -> {
-            System.out.println("Admin Auth started");
+            System.out.println("User Add Auth started");
 
             try {
                 Thread.sleep(1000L);
@@ -62,10 +62,10 @@ public class AdminAuthController {
 
                     if(value != 16777215L) {
                         JSONObject message = new JSONObject();
-                        UUID actionId = CommunicationManager.activeActions.get("admin_auth");
+                        UUID actionId = CommunicationManager.activeActions.get("user_add_auth");
 
                         try {
-                            message.put("action", "admin_auth_response");
+                            message.put("action", "user_add_auth_response");
                             message.put("action_id", actionId.toString());
                             message.put("response", JSONObject.valueToString(value));
                         } catch(JSONException ignored) {}
@@ -85,9 +85,9 @@ public class AdminAuthController {
     }
 
     public static void cancelIn() {
-        if(CommunicationManager.activeActions.containsKey("admin_auth")) {
+        if(CommunicationManager.activeActions.containsKey("user_add_auth")) {
             thread.stop();
-            CommunicationManager.activeActions.remove("admin_auth");
+            CommunicationManager.activeActions.remove("user_add_auth");
         }
     }
 
@@ -98,18 +98,18 @@ public class AdminAuthController {
             JSONObject message = new JSONObject();
 
             try {
-                message.put("action", "admin_auth_response");
+                message.put("action", "user_add_auth_response");
                 message.put("action_id", actionId.toString());
                 message.put("response", "cancel");
             } catch(JSONException ignored) {}
 
             CommunicationManager.publishMessage(message);
-            CommunicationManager.activeActions.remove("admin_auth");
+            CommunicationManager.activeActions.remove("user_add_auth");
         }
     }
 
     public static void finish() {
         thread.stop();
-        CommunicationManager.activeActions.remove("admin_auth");
+        CommunicationManager.activeActions.remove("user_add_auth");
     }
 }

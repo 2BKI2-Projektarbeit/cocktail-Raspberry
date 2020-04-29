@@ -8,17 +8,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.UUID;
 
-public class AdminAuthController {
+public class MaintenanceAuthController {
 
     private static Thread thread;
 
     public static void start(JSONObject object) {
         if(CommunicationManager.activeActions.containsKey("admin_auth")) {
-            cancelOut(CommunicationManager.activeActions.get("admin_auth"));
+            AdminAuthController.cancelOut(CommunicationManager.activeActions.get("admin_auth"));
         }
 
         if(CommunicationManager.activeActions.containsKey("maintenance_auth")) {
-            MaintenanceAuthController.cancelOut(CommunicationManager.activeActions.get("maintenance_auth"));
+            cancelOut(CommunicationManager.activeActions.get("maintenance_auth"));
         }
 
         if(CommunicationManager.activeActions.containsKey("confirm_age")) {
@@ -33,7 +33,7 @@ public class AdminAuthController {
             UserEditAuthController.cancelOut(CommunicationManager.activeActions.get("user_edit_auth"));
         }
 
-        CommunicationManager.activeActions.put("admin_auth", UUID.fromString(object.getString("action_id")));
+        CommunicationManager.activeActions.put("maintenance_auth", UUID.fromString(object.getString("action_id")));
 
         try {
             Main.device.write("clr:rfid".getBytes());
@@ -42,7 +42,7 @@ public class AdminAuthController {
         }
 
         thread = new Thread(() -> {
-            System.out.println("Admin Auth started");
+            System.out.println("Maintenance Auth started");
 
             try {
                 Thread.sleep(1000L);
@@ -62,10 +62,10 @@ public class AdminAuthController {
 
                     if(value != 16777215L) {
                         JSONObject message = new JSONObject();
-                        UUID actionId = CommunicationManager.activeActions.get("admin_auth");
+                        UUID actionId = CommunicationManager.activeActions.get("maintenance_auth");
 
                         try {
-                            message.put("action", "admin_auth_response");
+                            message.put("action", "maintenance_auth_response");
                             message.put("action_id", actionId.toString());
                             message.put("response", JSONObject.valueToString(value));
                         } catch(JSONException ignored) {}
@@ -85,9 +85,9 @@ public class AdminAuthController {
     }
 
     public static void cancelIn() {
-        if(CommunicationManager.activeActions.containsKey("admin_auth")) {
+        if(CommunicationManager.activeActions.containsKey("maintenance_auth")) {
             thread.stop();
-            CommunicationManager.activeActions.remove("admin_auth");
+            CommunicationManager.activeActions.remove("maintenance_auth");
         }
     }
 
@@ -98,18 +98,18 @@ public class AdminAuthController {
             JSONObject message = new JSONObject();
 
             try {
-                message.put("action", "admin_auth_response");
+                message.put("action", "maintenance_auth_response");
                 message.put("action_id", actionId.toString());
                 message.put("response", "cancel");
             } catch(JSONException ignored) {}
 
             CommunicationManager.publishMessage(message);
-            CommunicationManager.activeActions.remove("admin_auth");
+            CommunicationManager.activeActions.remove("maintenance_auth");
         }
     }
 
     public static void finish() {
         thread.stop();
-        CommunicationManager.activeActions.remove("admin_auth");
+        CommunicationManager.activeActions.remove("maintenance_auth");
     }
 }

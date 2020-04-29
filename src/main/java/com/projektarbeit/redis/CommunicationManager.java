@@ -1,8 +1,7 @@
 package com.projektarbeit.redis;
 
 import com.projektarbeit.objects.Cocktail;
-import com.projektarbeit.redis.controllers.AdminAuthController;
-import com.projektarbeit.redis.controllers.CocktailController;
+import com.projektarbeit.redis.controllers.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -87,14 +86,65 @@ public class CommunicationManager {
                             case "make_cocktail_start":
                                 CocktailController.start(object);
                                 break;
+
                             case "admin_auth_start":
                                 AdminAuthController.start(object);
                                 break;
+
                             case "admin_auth_cancel":
                                 AdminAuthController.cancelIn();
                                 break;
+
                             case "admin_auth_finish":
                                 AdminAuthController.finish();
+                                break;
+
+                            case "maintenance_auth_start":
+                                MaintenanceAuthController.start(object);
+                                break;
+
+                            case "maintenance_auth_cancel":
+                                MaintenanceAuthController.cancelIn();
+                                break;
+
+                            case "maintenance_auth_finish":
+                                MaintenanceAuthController.finish();
+                                break;
+
+                            case "confirm_age_start":
+                                ConfirmAgeController.start(object);
+                                break;
+
+                            case "confirm_age_cancel":
+                                ConfirmAgeController.cancelIn();
+                                break;
+
+                            case "confirm_age_finish":
+                                ConfirmAgeController.finish();
+                                break;
+
+                            case "user_add_auth_start":
+                                UserAddAuthController.start(object);
+                                break;
+
+                            case "user_add_auth_cancel":
+                                UserAddAuthController.cancelIn();
+                                break;
+
+                            case "user_add_auth_finish":
+                                UserAddAuthController.finish();
+                                break;
+
+                            case "user_edit_auth_start":
+                                UserEditAuthController.start(object);
+                                break;
+
+                            case "user_edit_auth_cancel":
+                                UserEditAuthController.cancelIn();
+                                break;
+
+                            case "user_edit_auth_finish":
+                                UserEditAuthController.finish();
                                 break;
 
                         }

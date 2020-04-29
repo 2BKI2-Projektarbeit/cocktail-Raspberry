@@ -1,6 +1,7 @@
 package com.projektarbeit.redis.controllers;
 
 import com.projektarbeit.Main;
+import com.projektarbeit.enums.CocktailSize;
 import com.projektarbeit.mysql.DatabaseManager;
 import com.projektarbeit.objects.Cocktail;
 import com.projektarbeit.objects.Ingredient;
@@ -46,6 +47,7 @@ public class CocktailController {
     public static void start(JSONObject object) {
         if(ready) {
             Cocktail cocktail = fetchCocktail(UUID.fromString(object.getString("cocktail_id")));
+            CocktailSize size = CocktailSize.valueOf(object.getString("cocktail_size"));
 
             thread = new Thread(() -> {
                 ready = false;
@@ -60,6 +62,9 @@ public class CocktailController {
                 cocktail.getIngredients().forEach((ingredient, ml) -> {
                     try {
                         int milliseconds = MachineController.berechneMillisekunden(ml);
+
+                        if(size == CocktailSize.HALF)
+                            milliseconds /= 2;
 
                         String message = "p:" + ingredient.getPump() + ":" + milliseconds;
 
