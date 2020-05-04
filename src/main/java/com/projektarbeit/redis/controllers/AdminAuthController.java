@@ -42,7 +42,7 @@ public class AdminAuthController {
         }
 
         thread = new Thread(() -> {
-            System.out.println("Admin Auth started");
+            Main.debug("Starting Administrator Authentication");
 
             try {
                 Thread.sleep(1000L);

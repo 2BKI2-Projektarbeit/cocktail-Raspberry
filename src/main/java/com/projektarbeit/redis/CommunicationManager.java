@@ -1,10 +1,12 @@
 package com.projektarbeit.redis;
 
+import com.projektarbeit.Main;
 import com.projektarbeit.objects.Cocktail;
 import com.projektarbeit.redis.controllers.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -156,5 +158,14 @@ public class CommunicationManager {
         }, "general"), "subscriberThread");
 
         t.start();
+    }
+
+    public static void sendToArduino(String message) {
+        try {
+            Main.device.write(message.getBytes());
+            System.out.println("[I2C] Message sent: " + message);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 }

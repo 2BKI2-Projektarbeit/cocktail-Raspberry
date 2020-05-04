@@ -6,6 +6,7 @@ import com.projektarbeit.mysql.DatabaseManager;
 import com.projektarbeit.objects.Cocktail;
 import com.projektarbeit.objects.Ingredient;
 import com.projektarbeit.redis.CommunicationManager;
+import com.sun.scenario.Settings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,6 +53,7 @@ public class CocktailController {
             thread = new Thread(() -> {
                 ready = false;
                 CommunicationManager.activeActions.put("make_cocktail", UUID.fromString(object.getString("action_id")));
+                LightController.sendRGB(SettingsController.splitColor(SettingsController.getInProgressLight()));
 
                 confirmStart(UUID.fromString(object.getString("action_id")));
 
@@ -66,9 +68,7 @@ public class CocktailController {
                         if(size == CocktailSize.HALF)
                             milliseconds /= 2;
 
-                        String message = "p:" + ingredient.getPump() + ":" + milliseconds;
-
-                        Main.device.write(message.getBytes());
+                        CommunicationManager.sendToArduino("p:" + ingredient.getPump() + ":" + milliseconds);
                         Thread.sleep(milliseconds + 1000);
 
                         DatabaseManager.getConnection().prepareStatement("UPDATE `ingredients` SET `fillLevel` = `fillLevel` -" + ml + " WHERE `ingredientId`='" + ingredient.getIngredientId() + "'").execute();
@@ -104,6 +104,16 @@ public class CocktailController {
         CommunicationManager.publishMessage(message);
         ready = true;
         CommunicationManager.activeActions.remove("make_cocktail");
+        LightController.sendRGB(SettingsController.splitColor(SettingsController.getSuccessLight()));
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000);
+                LightController.sendRGB(SettingsController.splitColor(SettingsController.getIdleLight()));
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }).start();
     }
 
     public static void cancelledCocktail(UUID actionId) {
@@ -119,5 +129,15 @@ public class CocktailController {
         CommunicationManager.publishMessage(message);
         ready = true;
         CommunicationManager.activeActions.remove("make_cocktail");
+        LightController.sendRGB(SettingsController.splitColor(SettingsController.getErrorLight()));
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000);
+                LightController.sendRGB(SettingsController.splitColor(SettingsController.getIdleLight()));
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        }).start();
     }
 }

@@ -35,14 +35,10 @@ public class ConfirmAgeController {
 
         CommunicationManager.activeActions.put("confirm_age", UUID.fromString(object.getString("action_id")));
 
-        try {
-            Main.device.write("clr:rfid".getBytes());
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        CommunicationManager.sendToArduino("clr:rfid");
 
         thread = new Thread(() -> {
-            System.out.println("Confirm Age started");
+            Main.debug("Starting Age Check Authentication");
 
             try {
                 Thread.sleep(1000L);

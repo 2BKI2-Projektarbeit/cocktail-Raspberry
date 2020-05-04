@@ -42,7 +42,7 @@ public class MaintenanceAuthController {
         }
 
         thread = new Thread(() -> {
-            System.out.println("Maintenance Auth started");
+            Main.debug("Starting Maintenance Administrator Authentication");
 
             try {
                 Thread.sleep(1000L);

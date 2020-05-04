@@ -42,7 +42,7 @@ public class UserEditAuthController {
         }
 
         thread = new Thread(() -> {
-            System.out.println("User Edit Auth started");
+            Main.debug("Starting RFID Identification");
 
             try {
                 Thread.sleep(1000L);

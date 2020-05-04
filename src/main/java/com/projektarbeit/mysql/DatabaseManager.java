@@ -11,7 +11,7 @@ public class DatabaseManager {
     public static boolean connect() {
         try {
             Class.forName("org.mariadb.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mariadb://192.168.1.1:3306/projektarbeit", "projektarbeit", "test123");
+            connection = DriverManager.getConnection("jdbc:mariadb://127.0.0.1:3306/projektarbeit", "projektarbeit", "test123");
 
             createTables();
 
