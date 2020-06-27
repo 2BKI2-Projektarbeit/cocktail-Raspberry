@@ -8,6 +8,10 @@ import java.sql.SQLException;
 
 public class SettingsController {
 
+    /**
+     * Checks if app is in maintenance mode.
+     * @return boolean Returns true if maintenance mode is enabled.
+     */
     public static boolean isMaintenance() {
         try {
             ResultSet result = DatabaseManager.getConnection().prepareStatement("SELECT * FROM settings WHERE `key` = 'maintenance'").executeQuery();
@@ -22,6 +26,11 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Set maintenance mode state.
+     * @param maintenance True if maintenance mode should be enabled.
+     * @return Nothing.
+     */
     public static void setMaintenance(boolean maintenance) {
         try {
             PreparedStatement statement = DatabaseManager.getConnection().prepareStatement("UPDATE settings SET `value` = ? WHERE `key` = 'maintenance'");
@@ -32,6 +41,10 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Returns if age should be checked on alcoholic cocktails.
+     * @return boolean True if should be checked.
+     */
     public static boolean alcoholAgeCheck() {
         try {
             ResultSet result = DatabaseManager.getConnection().prepareStatement("SELECT * FROM settings WHERE `key` = 'alcohol_age-check'").executeQuery();
@@ -46,6 +59,11 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Sets alcoholic age check.
+     * @param check True if check should be enabled.
+     * @return Nothing.
+     */
     public static void setAlcoholAgeCheck(boolean check) {
         try {
             PreparedStatement statement = DatabaseManager.getConnection().prepareStatement("UPDATE settings SET `value` = ? WHERE `key` = 'alcohol_age-check'");
@@ -56,6 +74,10 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Returns idle light string.
+     * @return string
+     */
     public static String getIdleLight() {
         try {
             ResultSet result = DatabaseManager.getConnection().prepareStatement("SELECT * FROM settings WHERE `key` = 'light_idle'").executeQuery();
@@ -70,6 +92,13 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Sets color for idle light.
+     * @param red Value for red color between 0 and 255.
+     * @param green Value for green color between 0 and 255.
+     * @param blue Value for blue color between 0 and 255.
+     * @return Nothing.
+     */
     public static void setIdleLight(int red, int green, int blue) {
         try {
             PreparedStatement statement = DatabaseManager.getConnection().prepareStatement("UPDATE settings SET `value` = ? WHERE `key` = 'light_idle'");
@@ -80,6 +109,10 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Returns in progess light string.
+     * @return string
+     */
     public static String getInProgressLight() {
         try {
             ResultSet result = DatabaseManager.getConnection().prepareStatement("SELECT * FROM settings WHERE `key` = 'light_in-progress'").executeQuery();
@@ -94,6 +127,13 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Sets color for in progess light.
+     * @param red Value for red color between 0 and 255.
+     * @param green Value for green color between 0 and 255.
+     * @param blue Value for blue color between 0 and 255.
+     * @return Nothing.
+     */
     public static void setInProgressLight(int red, int green, int blue) {
         try {
             PreparedStatement statement = DatabaseManager.getConnection().prepareStatement("UPDATE settings SET `value` = ? WHERE `key` = 'light_in-progress'");
@@ -104,6 +144,10 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Returns success light string.
+     * @return string
+     */
     public static String getSuccessLight() {
         try {
             ResultSet result = DatabaseManager.getConnection().prepareStatement("SELECT * FROM settings WHERE `key` = 'light_success'").executeQuery();
@@ -118,6 +162,13 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Sets color for success light.
+     * @param red Value for red color between 0 and 255.
+     * @param green Value for green color between 0 and 255.
+     * @param blue Value for blue color between 0 and 255.
+     * @return Nothing.
+     */
     public static void setSuccessLight(int red, int green, int blue) {
         try {
             PreparedStatement statement = DatabaseManager.getConnection().prepareStatement("UPDATE settings SET `value` = ? WHERE `key` = 'light_success'");
@@ -128,6 +179,10 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Returns error light string.
+     * @return string
+     */
     public static String getErrorLight() {
         try {
             ResultSet result = DatabaseManager.getConnection().prepareStatement("SELECT * FROM settings WHERE `key` = 'light_error'").executeQuery();
@@ -142,6 +197,13 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Sets color for error light.
+     * @param red Value for red color between 0 and 255.
+     * @param green Value for green color between 0 and 255.
+     * @param blue Value for blue color between 0 and 255.
+     * @return Nothing.
+     */
     public static void setErrorLight(int red, int green, int blue) {
         try {
             PreparedStatement statement = DatabaseManager.getConnection().prepareStatement("UPDATE settings SET `value` = ? WHERE `key` = 'light_error'");
@@ -152,6 +214,11 @@ public class SettingsController {
         }
     }
 
+    /**
+     * Splits color string to int array.
+     * @param color string
+     * @return int array
+     */
     public static int[] splitColor(String color) {
         int[] rgb = new int[3];
 

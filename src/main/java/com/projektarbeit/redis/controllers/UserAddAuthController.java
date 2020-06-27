@@ -12,6 +12,11 @@ public class UserAddAuthController {
 
     private static Thread thread;
 
+    /**
+     * Starts scanning for RFID-Tag to add.
+     * @param object Content of message.
+     * @return Nothing.
+     */
     public static void start(JSONObject object) {
         if(CommunicationManager.activeActions.containsKey("admin_auth")) {
             AdminAuthController.cancelOut(CommunicationManager.activeActions.get("admin_auth"));
@@ -84,6 +89,10 @@ public class UserAddAuthController {
         thread.start();
     }
 
+    /**
+     * Handles cancel message.
+     * @return Nothing.
+     */
     public static void cancelIn() {
         if(CommunicationManager.activeActions.containsKey("user_add_auth")) {
             thread.stop();
@@ -91,6 +100,11 @@ public class UserAddAuthController {
         }
     }
 
+    /**
+     * Notifies all apps that authentication has been cancelled.
+     * @param actionId Action ID to be cancelled.
+     * @return Nothing.
+     */
     public static void cancelOut(UUID actionId) {
         if(CommunicationManager.activeActions.containsValue(actionId)) {
             thread.stop();
@@ -108,6 +122,10 @@ public class UserAddAuthController {
         }
     }
 
+    /**
+     * Stops authentication thread.
+     * @return Nothing.
+     */
     public static void finish() {
         thread.stop();
         CommunicationManager.activeActions.remove("user_add_auth");

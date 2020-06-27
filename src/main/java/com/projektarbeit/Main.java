@@ -8,10 +8,7 @@ import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.projektarbeit.mysql.DatabaseManager;
 import com.projektarbeit.redis.CommunicationManager;
-import com.projektarbeit.redis.controllers.CocktailController;
-import com.projektarbeit.redis.controllers.IngredientController;
-import com.projektarbeit.redis.controllers.LightController;
-import com.projektarbeit.redis.controllers.SettingsController;
+import com.projektarbeit.redis.controllers.*;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -36,11 +33,18 @@ public class Main {
         cancelButton.setShutdownOptions(true);
 
         cancelButton.addListener((GpioPinListenerDigital) event -> {
-            System.out.println("INTERRUPT");
-            if(CommunicationManager.activeActions.containsKey("make_cocktail")) {
-                UUID actionId = CommunicationManager.activeActions.get("make_cocktail");
+            debug("Triggered cancel interrupt...");
 
-                CocktailController.cancelledCocktail(actionId);
+            if(CommunicationManager.activeActions.containsKey("make_cocktail")) {
+                UUID actionId;
+
+                if(CommunicationManager.activeActions.containsKey("")) {
+                    actionId = CommunicationManager.activeActions.get("make_cocktail");
+                    CocktailController.cancelledCocktail(actionId);
+                } else if(CommunicationManager.activeActions.containsKey("machine_clean")) {
+                    actionId = CommunicationManager.activeActions.get("machine_clean");
+                    MachineController.cleaningCancelled(actionId);
+                }
             }
         });
 

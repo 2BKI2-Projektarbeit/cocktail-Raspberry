@@ -21,26 +21,50 @@ public class Cocktail {
         this.createdAt = createdAt;
     }
 
+    /**
+     * Returns cocktail id.
+     * @return UUID
+     */
     public UUID getCocktailId() {
         return cocktailId;
     }
 
+    /**
+     * Returns cocktail name.
+     * @return String
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns cocktail description.
+     * @return String
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Returns list of ingredients.
+     * @return HashMap<Ingredient, Integer> Returns ingredient and amount.
+     */
     public HashMap<Ingredient, Integer> getIngredients() {
         return ingredients;
     }
 
+    /**
+     * Returns if cocktail is enabled.
+     * @return boolean Returns true if cocktail is enabled.
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * Returns cocktail creation date.
+     * @return Date
+     */
     public Date getCreatedAt() {
         return createdAt;
     }

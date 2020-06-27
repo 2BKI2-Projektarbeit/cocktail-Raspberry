@@ -12,6 +12,11 @@ public class MaintenanceAuthController {
 
     private static Thread thread;
 
+    /**
+     * Starts authentication proecess for maintenance entry.
+     * @param object Content of incoming message.
+     * @return Nothing.
+     */
     public static void start(JSONObject object) {
         if(CommunicationManager.activeActions.containsKey("admin_auth")) {
             AdminAuthController.cancelOut(CommunicationManager.activeActions.get("admin_auth"));
@@ -84,6 +89,10 @@ public class MaintenanceAuthController {
         thread.start();
     }
 
+    /**
+     * Cancels authentication process.
+     * @return Nothing.
+     */
     public static void cancelIn() {
         if(CommunicationManager.activeActions.containsKey("maintenance_auth")) {
             thread.stop();
@@ -91,6 +100,11 @@ public class MaintenanceAuthController {
         }
     }
 
+    /**
+     * Tells apps to cancel authentication process.
+     * @param actionId Action ID to be cancelled.
+     * @return Nothing.
+     */
     public static void cancelOut(UUID actionId) {
         if(CommunicationManager.activeActions.containsValue(actionId)) {
             thread.stop();
@@ -108,6 +122,10 @@ public class MaintenanceAuthController {
         }
     }
 
+    /**
+     * Stops authentication thread.
+     * @return Nothing.
+     */
     public static void finish() {
         thread.stop();
         CommunicationManager.activeActions.remove("maintenance_auth");

@@ -12,6 +12,11 @@ public class AdminAuthController {
 
     private static Thread thread;
 
+    /**
+     * Starts authentication proecess for admin panel.
+     * @param object Content of incoming message.
+     * @return Nothing.
+     */
     public static void start(JSONObject object) {
         if(CommunicationManager.activeActions.containsKey("admin_auth")) {
             cancelOut(CommunicationManager.activeActions.get("admin_auth"));
@@ -42,7 +47,7 @@ public class AdminAuthController {
         }
 
         thread = new Thread(() -> {
-            Main.debug("Starting Administrator Authentication");
+            Main.debug("Starting administrator authentication...");
 
             try {
                 Thread.sleep(1000L);
@@ -84,13 +89,23 @@ public class AdminAuthController {
         thread.start();
     }
 
+    /**
+     * Cancels authentication process.
+     * @return Nothing.
+     */
     public static void cancelIn() {
         if(CommunicationManager.activeActions.containsKey("admin_auth")) {
+            Main.debug("Cancelling administrator authentication!");
             thread.stop();
             CommunicationManager.activeActions.remove("admin_auth");
         }
     }
 
+    /**
+     * Sends cancel notification to app.
+     * @param actionId Action to be cancelled.
+     * @return Nothing.
+     */
     public static void cancelOut(UUID actionId) {
         if(CommunicationManager.activeActions.containsValue(actionId)) {
             thread.stop();
@@ -108,7 +123,12 @@ public class AdminAuthController {
         }
     }
 
+    /**
+     * Stops authentication thread.
+     * @return Nothing.
+     */
     public static void finish() {
+        Main.debug("Successfully completed administrator authentication!");
         thread.stop();
         CommunicationManager.activeActions.remove("admin_auth");
     }

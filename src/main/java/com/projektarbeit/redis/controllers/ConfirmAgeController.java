@@ -12,6 +12,11 @@ public class ConfirmAgeController {
 
     private static Thread thread;
 
+    /**
+     * Starts authentication process for age check.
+     * @param object
+     * @return Nothing.
+     */
     public static void start(JSONObject object) {
         if(CommunicationManager.activeActions.containsKey("admin_auth")) {
             AdminAuthController.cancelOut(CommunicationManager.activeActions.get("admin_auth"));
@@ -80,6 +85,10 @@ public class ConfirmAgeController {
         thread.start();
     }
 
+    /**
+     * Events which triggers when app cancels authentication.
+     * @return Nothing.
+     */
     public static void cancelIn() {
         if(CommunicationManager.activeActions.containsKey("confirm_age")) {
             thread.stop();
@@ -87,6 +96,11 @@ public class ConfirmAgeController {
         }
     }
 
+    /**
+     * Tells other apps to cancel authentication.
+     * @param actionId Action ID to be cancelled.
+     * @return Nothing.
+     */
     public static void cancelOut(UUID actionId) {
         if(CommunicationManager.activeActions.containsValue(actionId)) {
             thread.stop();
@@ -104,6 +118,10 @@ public class ConfirmAgeController {
         }
     }
 
+    /**
+     * Stops authentication thread.
+     * @return Nothing.
+     */
     public static void finish() {
         thread.stop();
         CommunicationManager.activeActions.remove("confirm_age");

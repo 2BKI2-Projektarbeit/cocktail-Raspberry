@@ -13,6 +13,10 @@ public class IngredientController {
 
     public static HashMap<UUID, Ingredient> ingredients = new HashMap<>();
 
+    /**
+     * Loads ingredients from database.
+     * @return Nothing.
+     */
     public static void getIngredients() {
         ingredients.clear();
 

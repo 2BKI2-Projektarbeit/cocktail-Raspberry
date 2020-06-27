@@ -6,7 +6,6 @@ import com.projektarbeit.mysql.DatabaseManager;
 import com.projektarbeit.objects.Cocktail;
 import com.projektarbeit.objects.Ingredient;
 import com.projektarbeit.redis.CommunicationManager;
-import com.sun.scenario.Settings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +20,15 @@ public class CocktailController {
     public static boolean ready = true;
     public static Thread thread;
 
+    /**
+     * Loads information of a specified cocktail from database.
+     * @param cocktailId Cocktail ID to be loaded.
+     * @return Cocktail Object with information.
+     */
     public static Cocktail fetchCocktail(UUID cocktailId) {
         Cocktail cocktail;
+
+        Main.debug("Fetching information of cocktail " + cocktailId + "...");
 
         try {
             ResultSet resultSet = DatabaseManager.getConnection().prepareStatement("SELECT * FROM `cocktails` WHERE `cocktailId`='" + cocktailId.toString() + "'").executeQuery();
@@ -38,17 +44,27 @@ public class CocktailController {
                 }
 
                 cocktail = new Cocktail(cocktailId, resultSet.getString("name"), resultSet.getString("description"), ingredientsList, resultSet.getBoolean("enabled"), resultSet.getDate("createdAt"));
+                Main.debug("Successfully fetched cocktail data!");
                 return cocktail;
             }
-        } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {
+            Main.debug("An error occurred while fetching cocktail data!");
+        }
 
         return null;
     }
 
+    /**
+     * Starts making a cocktail.
+     * @param object Content of incoming message.
+     * @return Nothing.
+     */
     public static void start(JSONObject object) {
         if(ready) {
             Cocktail cocktail = fetchCocktail(UUID.fromString(object.getString("cocktail_id")));
             CocktailSize size = CocktailSize.valueOf(object.getString("cocktail_size"));
+
+            Main.debug("Starting making cocktail " + cocktail.getCocktailId() + " in size " + size.toString() + "...");
 
             thread = new Thread(() -> {
                 ready = false;
@@ -59,7 +75,10 @@ public class CocktailController {
 
                 try {
                     Thread.sleep(2000);
-                } catch (Exception ignored) {}
+                } catch (Exception ex) {
+                    Main.debug("An error occurred while making cocktail!");
+                    ex.printStackTrace();
+                }
 
                 cocktail.getIngredients().forEach((ingredient, ml) -> {
                     try {
@@ -72,27 +91,45 @@ public class CocktailController {
                         Thread.sleep(milliseconds + 1000);
 
                         DatabaseManager.getConnection().prepareStatement("UPDATE `ingredients` SET `fillLevel` = `fillLevel` -" + ml + " WHERE `ingredientId`='" + ingredient.getIngredientId() + "'").execute();
-                    } catch (Exception ignored) {}
+                    } catch (Exception ex) {
+                        Main.debug("An error occurred while making cocktail!");
+                        ex.printStackTrace();
+                    }
                 });
 
+                Main.debug("Successfully finished cocktail making!");
                 finishedCocktail(UUID.fromString(object.getString("action_id")));
-
             });
             thread.start();
         }
     }
 
+    /**
+     * Confirms the start to app.
+     * @param actionId Action to be confirmed.
+     * @return Nothing.
+     */
     public static void confirmStart(UUID actionId) {
         JSONObject message = new JSONObject();
+
+        Main.debug("Confirming start of cocktail making process...");
 
         try {
             message.put("action", "make_cocktail_confirmation");
             message.put("action_id", actionId.toString());
-        } catch(JSONException ignored) {}
+        } catch(JSONException ignored) {
+            Main.debug("An error occurred while confirming cocktail making process!");
+        }
 
         CommunicationManager.publishMessage(message);
+        Main.debug("Successfully confirmed cocktail making process!");
     }
 
+    /**
+     * Notifies app that cocktail is finished
+     * @param actionId Action to be finished.
+     * @return Nothing.
+     */
     public static void finishedCocktail(UUID actionId) {
         JSONObject message = new JSONObject();
 
@@ -116,6 +153,11 @@ public class CocktailController {
         }).start();
     }
 
+    /**
+     * Notifies app that cocktail is cancelled
+     * @param actionId Action to be cancelled.
+     * @return Nothing.
+     */
     public static void cancelledCocktail(UUID actionId) {
         thread.stop();
 
